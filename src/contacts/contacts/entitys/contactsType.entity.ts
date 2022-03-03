@@ -1,18 +1,30 @@
+import { Optional } from '@nestjs/common';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class ContactsType {
+class ContactsType {
     
   @PrimaryGeneratedColumn()
   public id: number;
-  @Column()
-  cellphone: number;
-  @Column()
-  homeNumber: number;
-  @Column()
-  email: string;
-  @Column()
-  workNumber: number;
-  @Column()
-  id_contact: number;
+  @Column({    nullable: true,
+  })
+  @Optional()
+  cellphone: string;
+  @Column({    nullable: true,
+  })
+  @Optional()
+  homeNumber?: string;
+  @Column({    nullable: true,
+  })
+  @Optional()
+  email?: string;
+  @Column({    nullable: true,
+  })
+  @Optional()
+  workNumber?: string;
+  @Column({    nullable: true,
+  })
+  @Optional()
+  id_contact?: number;
 }
+export default ContactsType;

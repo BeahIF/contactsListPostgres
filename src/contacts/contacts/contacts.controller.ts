@@ -86,12 +86,13 @@ export default class ContactsController {
  
   @Get(':id')
   getPostById(@Param('id') id: string) {
-    return this.contactsService.getPostById(Number(id));
+    return this.contactsService.getContactById(Number(id));
   }
  
   @Post()
   async createPost(@Body() post: CreateContactsDto) {
-    return this.contactsService.createPost(post);
+      return this.contactsService.createPost(post);
+   
   }
  
   @Put(':id')

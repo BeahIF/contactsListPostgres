@@ -10,4 +10,8 @@
 // }
 export class CreateContactsDto {
  name: string;
+ cellphone: string;
+homeNumber: string;
+ email: string;
+ workNumber: string;
 }
