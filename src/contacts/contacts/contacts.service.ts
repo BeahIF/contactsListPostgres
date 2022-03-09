@@ -80,6 +80,7 @@
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { isEmpty } from 'rxjs';
 import { Repository } from 'typeorm';
 import { CreateContactsDto } from './dto/create-contacts.dto';
 import Contacts from './entitys/contacts.entity';
@@ -108,79 +109,161 @@ export default class ContactsService {
     return correctData
   }
 
-  getAllcontacts() {
-    return this.contactsRepository.find();
+  async getAllcontacts() {
+    const responseFinal = []
+    const contacts = await this.contactsRepository.find();
+    for await (const i of contacts) {
+      const contactsTypes = await this.contactsTypeRepository.findOne({where:{id_contact:i?.id}})
+      console.log(contactsTypes)
+
+      const response = { ...i, ...contactsTypes}
+      console.log(response)
+      responseFinal.push(response)
+      console.log(responseFinal)
+    }
+    const contactsTypesSemRelacao = await this.contactsTypeRepository.find({where:{id_contact:null}})
+    console.log(contactsTypesSemRelacao)
+    for await (const i of contactsTypesSemRelacao) {
+
+    responseFinal.push(i)
+    }
+    return responseFinal
+
   }
 
   async getContactById(id: number) {
-    const post = await this.contactsRepository.findOne(id);
-    if (post) {
-      const contacts = await this.contactsTypeRepository.findOne({where:{id_contact:id}})
-      console.log(contacts)
-      const response = { ...post, ...contacts}
+    const contacts = await this.contactsRepository.findOne(id);
+    if (contacts) {
+      const contactsTypes = await this.contactsTypeRepository.findOne({where:{id_contact:id}})
+      console.log(contactsTypes)
+      const response = { ...contacts, ...contactsTypes}
       console.log(response)
-      return post;
+      return response
     }else{
       const contacts = await this.contactsTypeRepository.findOne(id);
       return contacts
 
     }
-    throw new HttpException('Contact not found', HttpStatus.NOT_FOUND);
+    // throw new HttpException('Contact not found', HttpStatus.NOT_FOUND);
   }
 
-  async replacePost(id: number, post) {
-    await this.contactsRepository.update(id, post);
-    const updatedPost = await this.contactsRepository.findOne(id);
-    if (updatedPost) {
-      return updatedPost;
+  async replaceContacts(id: number, contacts) {
+    let updatedContact
+    if(contacts?.name){
+      await this.contactsRepository.update(id, contacts);
+      updatedContact = await this.contactsRepository.findOne(id);
+      if (updatedContact) {
+      
+     const contactsType = await this.contactsTypeRepository.findOne({where:{id_contact:updatedContact?.id}})
+     const contactsTypetoUpdate = this.removeFalsyValuesInObject({
+      cellphone:contacts?.cellphone,
+      homeNumber: contacts?.homeNumber,
+      email: contacts?.email,
+      workNumber:contacts?.workNumber,
+      id_contact:updatedContact?.id
+    })
+    console.log(contactsType)
+     if(contactsType != undefined){
+      await this.contactsTypeRepository.update(id, contactsTypetoUpdate);
+      const updatedContactType = await this.contactsTypeRepository.findOne(id);
+      const response = {...updatedContact,...updatedContactType}
+      return response
+     }else{
+    console.log(contactsTypetoUpdate)
+      if(Object.values(contactsTypetoUpdate).length === 0){
+        console.log("verifiquei que tem numero")   
+        const newContactType = await this.contactsTypeRepository.create(contactsTypetoUpdate);
+        await this.contactsTypeRepository.save(newContactType);
+        console.log(newContactType)
+        const response = {...updatedContact,...newContactType}
+        return response  
+
+
+        // if (updatedContacts) {
+        //   return updatedContacts;
+        // }else{
+        //         throw new HttpException('Contact not found', HttpStatus.NOT_FOUND);
+  
+        // }
+     }
     }
-    throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
-  }
+    // }else{
 
-  async createPost(post: CreateContactsDto) {
-    if(post.name){
-      const contactName ={name: post.name
+    //   throw new HttpException('Contacts not found', HttpStatus.NOT_FOUND);
+    // }
+    
+    
+    
+    }else{
+      if(contacts?.cellphone || contacts?.homeNumber || contacts?.email || contacts?.workNumber){
+      await this.contactsTypeRepository.update(id, contacts);
+      const updatedContacts = await this.contactsTypeRepository.findOne(id);
+      if (updatedContacts) {
+        return updatedContacts;
+      }else{
+              throw new HttpException('Contact not found', HttpStatus.NOT_FOUND);
+
       }
+    }else{
+      throw new HttpException('Contact not found', HttpStatus.NOT_FOUND);
+
+}
+    }
+    } if(contacts?.cellphone || contacts?.homeNumber || contacts?.email || contacts?.workNumber){
+      await this.contactsTypeRepository.update(id, contacts);
+      const updatedContacts = await this.contactsTypeRepository.findOne(id);
+      if (updatedContacts) {
+        return updatedContacts;
+      }else{
+              throw new HttpException('Contact not found', HttpStatus.NOT_FOUND);
+
+      }
+    }else{
+      throw new HttpException('Contact not found', HttpStatus.NOT_FOUND);
+
+}
+  }
+  async createContacts(contacts: CreateContactsDto) {
+    if(contacts?.name){
+      const contactName ={name: contacts?.name}
       const newContact = await this.contactsRepository.create(contactName);
       await this.contactsRepository.save(newContact);
-      console.log(newContact.id)
 
-      const postContactType = this.removeFalsyValuesInObject({
-        cellphone:post.cellphone,
-  homeNumber: post.homeNumber,
-   email: post.email,
-   workNumber:post.workNumber,
-   id_contact:newContact.id
+      const contactsType = this.removeFalsyValuesInObject({
+        cellphone:contacts?.cellphone,
+        homeNumber: contacts?.homeNumber,
+        email: contacts?.email,
+        workNumber:contacts?.workNumber,
+        id_contact:newContact?.id
       })
 
-      console.log(postContactType)
     
-      const newContactType = await this.contactsTypeRepository.create(postContactType);
+      const newContactType = await this.contactsTypeRepository.create(contactsType);
       await this.contactsTypeRepository.save(newContactType);
-      console.log(newContactType)
       return newContact;
 
     }
 
-    const postContactType = this.removeFalsyValuesInObject({
-      cellphone:post.cellphone,
-      homeNumber: post.homeNumber,
-      email: post.email,
-      workNumber:post.workNumber
+    const contactsType = this.removeFalsyValuesInObject({
+      cellphone:contacts?.cellphone,
+      homeNumber: contacts?.homeNumber,
+      email: contacts?.email,
+      workNumber:contacts?.workNumber
     })
 
+    console.log(contactsType)
 
-    const newContactType = await this.contactsTypeRepository.create(postContactType);
-    await this.contactsRepository.save(newContactType);
-    return newContactType;
+    const newContactsType = await this.contactsTypeRepository.create(contactsType);
+    await this.contactsTypeRepository.save(newContactsType);
+    return newContactsType;
 
   }
 
 
-  async deletePost(id: number) {
+  async deleteContacts(id: number) {
     const deleteResponse = await this.contactsRepository.delete(id);
     if (!deleteResponse.affected) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('Contacts not found', HttpStatus.NOT_FOUND);
     }
   }
 }

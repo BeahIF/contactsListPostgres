@@ -4,7 +4,7 @@
 //   Query,
 //   Get,
 //   HttpStatus,
-//   Post,
+//   Contacts,
 //   Body,
 //   NotFoundException,
 //   Put,
@@ -91,17 +91,17 @@ export default class ContactsController {
  
   @Post()
   async createPost(@Body() post: CreateContactsDto) {
-      return this.contactsService.createPost(post);
+      return this.contactsService.createContacts(post);
    
   }
  
   @Put(':id')
-  async replacePost(@Param('id') id: string, @Body() post) {
-    return this.contactsService.replacePost(Number(id), post);
+  async replaceContacts(@Param('id') id: string, @Body() post) {
+    return this.contactsService.replaceContacts(Number(id), post);
   }
  
   @Delete(':id')
-  async deletePost(@Param('id') id: string) {
-    this.contactsService.deletePost(Number(id));
+  async deleteContacts(@Param('id') id: string) {
+    this.contactsService.deleteContacts(Number(id));
   }
 }
