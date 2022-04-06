@@ -84,6 +84,11 @@ export default class ContactsController {
     return this.contactsService.getAllcontacts();
   }
  
+  @Get('/phone/:phone')
+  getContactByPhone( @Param('phone') phone:string){
+    return this.contactsService.getContactByPhone(phone);
+  }
+
   @Get(':id')
   getPostById(@Param('id') id: string) {
     return this.contactsService.getContactById(Number(id));

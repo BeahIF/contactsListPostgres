@@ -150,6 +150,30 @@ export default class ContactsService {
     // throw new HttpException('Contact not found', HttpStatus.NOT_FOUND);
   }
 
+  
+  async getContactByPhone(phone:string){
+  
+    const contact = await this.contactsTypeRepository.
+    createQueryBuilder().where("homenumber = :phone",{phone})
+    .orWhere("cellphone = :phone",{phone}).orWhere("worknumber = :phone",{phone}).execute()    
+
+    if (contact) {
+      let i=0
+      while(i<contact?.length) {
+        const name = await this.contactsRepository.findOne({where:{id:contact[i].ContactsType_id_contact}})
+        if(name){
+          const contactName={...contact[i], ...name}
+          contact[i]= contactName
+        
+        }
+        i=i+1
+      }
+      return contact
+
+    } else {
+      throw new HttpException('Contact not found', HttpStatus.NOT_FOUND);
+    }  }
+
   async replaceContacts(id: number, contacts) {
     let updatedContact;
     if (contacts?.name) {

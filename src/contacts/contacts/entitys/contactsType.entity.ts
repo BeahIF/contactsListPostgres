@@ -13,7 +13,7 @@ class ContactsType {
   @Column({    nullable: true,
   })
   @Optional()
-  homeNumber?: string;
+  homenumber?: string;
   @Column({    nullable: true,
   })
   @Optional()
@@ -21,7 +21,7 @@ class ContactsType {
   @Column({    nullable: true,
   })
   @Optional()
-  workNumber?: string;
+  worknumber?: string;
   @Column({    nullable: true,
   })
   @Optional()
