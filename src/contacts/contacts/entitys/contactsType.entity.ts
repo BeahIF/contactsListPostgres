@@ -26,5 +26,14 @@ class ContactsType {
   })
   @Optional()
   id_contact?: number;
+
+  @Column({    nullable: true,
+  })
+  public createdDate: Date;
+
+  @Column({    nullable: true,
+  })
+  public updatedDate: Date;
+
 }
 export default ContactsType;

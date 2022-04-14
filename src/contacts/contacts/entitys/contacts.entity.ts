@@ -9,6 +9,14 @@ class Contacts {
   @Column()
   public name: string;
 
+  @Column({    nullable: true,
+  })
+  public createdDate: Date;
+
+  @Column({    nullable: true,
+  })
+  public updatedDate: Date;
+
   
 }
 
