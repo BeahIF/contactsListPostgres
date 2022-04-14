@@ -1,86 +1,5 @@
-// import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-// // import { CreateContactsDTO } from './dto/contacts.dto';
-// import { InjectRepository } from '@nestjs/typeorm';
-// import Contacts from './entitys/contacts.entity';
-// import { Repository } from 'typeorm';
-
-// @Injectable()
-// export class ContactsService {
-//   constructor(
-//     @InjectRepository(Contacts)
-//     private contactsRepository: Repository<Contacts>,
-//   ) {}
-
-//   create(createContactsDTO) {
-//     console.log(createContactsDTO);
-//     const post: CreatePostDto = request.body;
-//     const createdPost = this.contactsService.createPost(post);
-//     response.send(createdPost);
-//     // const createdCat = new this.contactsRepository.createContactsDTO);
-//     // return createdCat.save();
-//   }
-
-//   findAll() {
-//     return this.contactsRepository.find();
-//   }
-
-//   //  findById(id:number): Promise<Contacts> {
-//   //   const customer = this.contactsRepository.findById(id).exec();
-//   //   return customer;
-//   // }
-
-//   find(req) {
-//     return this.contactsRepository.find(req);
-//   }
-
-//   update(id, createContactsDTO) {
-//     const contacts = this.contactsRepository.findOne(id);
-//     console.log(contacts);
-//     let contactsPut;
-//     if (createContactsDTO.contacts.cellphone) {
-//       contactsPut = {
-//         contacts: {
-//           cellphone: createContactsDTO.contacts.cellphone,
-//         },
-//       };
-//     } else {
-//       if (createContactsDTO.contacts.homeNumber) {
-//         contactsPut = {
-//           contacts: {
-//             ...contactsPut.contacts,
-//             homeNumber: createContactsDTO.contacts.homeNumber,
-//           },
-//         };
-//       }
-//       //add outros
-//     }
-
-//     // contactsPut = { contacts:{
-//     //   "homeNumber":
-//     //   "email":
-//     //   "cellphone":
-//     //   "workNumber":
-//     // }
-//     console.log(contactsPut);
-//     const updated = this.contactsRepository.update(id, contactsPut);
-//     if (updated) {
-//       return updated;
-//     } else {
-//       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
-//     }
-//   }
-
-//   async delete(id) {
-//     const deleteResponse = await this.contactsRepository.delete(id);
-//     if (!deleteResponse.affected) {
-//       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
-//     }
-//   }
-// }
-
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { isEmpty } from 'rxjs';
 import { Repository } from 'typeorm';
 import { CreateContactsDto } from './dto/create-contacts.dto';
 import Contacts from './entitys/contacts.entity';
@@ -182,7 +101,10 @@ export default class ContactsService {
       // const    contactToUpdate={
       // name:
       // }
-      await this.contactsRepository.update(id, { name: contacts?.name,updatedDate:new Date() });
+      await this.contactsRepository.update(id, {
+        name: contacts?.name,
+        updatedDate: new Date(),
+      });
 
       updatedContact = await this.contactsRepository.findOne(id);
       if (updatedContact) {
@@ -195,7 +117,7 @@ export default class ContactsService {
           email: contacts?.email,
           workNumber: contacts?.workNumber,
           id_contact: updatedContact?.id,
-          updatedDate:new Date()
+          updatedDate: new Date(),
         });
         if (contactsType != undefined) {
           await this.contactsTypeRepository.update(id, contactsTypetoUpdate);
@@ -282,7 +204,7 @@ export default class ContactsService {
         email: contacts?.email,
         workNumber: contacts?.workNumber,
         id_contact: newContact?.id,
-        createdDate: new Date()
+        createdDate: new Date(),
       });
 
       const newContactType = await this.contactsTypeRepository.create(
@@ -297,8 +219,7 @@ export default class ContactsService {
       homeNumber: contacts?.homeNumber,
       email: contacts?.email,
       workNumber: contacts?.workNumber,
-      createdDate: new Date()
-
+      createdDate: new Date(),
     });
 
     const newContactsType = await this.contactsTypeRepository.create(
